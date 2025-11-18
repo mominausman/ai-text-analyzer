@@ -5,8 +5,6 @@ import { z } from "zod";
 import { env } from "@/lib/env";
 import type { AIAnalysis } from "@/types/analysis";
 
-const groq = new Groq({ apiKey: env.GROQ_API_KEY });
-
 const requestSchema = z.object({
   message: z.string().min(1).max(2000),
 });
@@ -32,6 +30,8 @@ export async function POST(req: Request) {
   try {
     const json = await req.json();
     const { message } = requestSchema.parse(json);
+
+    const groq = new Groq({ apiKey: env.GROQ_API_KEY });
 
     const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",

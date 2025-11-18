@@ -72,13 +72,25 @@ Summaries must be concise but vivid. Offer actionable suggestions rooted in the 
     }
 
     // Handle both string and array content formats
-    const normalized = typeof rawContent === "string"
-      ? rawContent
-      : Array.isArray(rawContent)
-        ? rawContent
-            .map((chunk) => (typeof chunk === "string" ? chunk : "text" in chunk ? chunk.text : ""))
-            .join("")
-        : "";
+    let normalized: string;
+    if (typeof rawContent === "string") {
+      normalized = rawContent;
+    } else if (Array.isArray(rawContent)) {
+      const contentArray = rawContent as Array<string | { text: string }>;
+      normalized = contentArray
+        .map((chunk) => {
+          if (typeof chunk === "string") {
+            return chunk;
+          }
+          if (typeof chunk === "object" && chunk !== null && "text" in chunk) {
+            return chunk.text;
+          }
+          return "";
+        })
+        .join("");
+    } else {
+      normalized = "";
+    }
 
     const cleaned = normalized
       .replace(/```json|```/g, "")
